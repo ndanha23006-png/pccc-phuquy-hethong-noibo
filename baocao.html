@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<?!= include('styles') ?>
+</head>
+<body>
+<div class="wrap">
+  <div class="form-top">
+    <a class="btn btn-sm" href="<?= baseUrl ?>?page=baocaohub" aria-label="Về danh sách tuần">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Danh sách tuần
+    </a>
+    <div class="ttl"><span id="weekName">Báo cáo công việc tuần</span><small>Nhập báo cáo cho tổ đội · dữ liệu ghi vào file Excel của tuần</small></div>
+  </div>
+
+  <div class="banner" id="savedBanner" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+    <span id="savedText"></span>
+  </div>
+
+  <div class="errsum" id="errsum" role="alert" aria-live="assertive">
+    <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Chưa thể gửi báo cáo — vui lòng bổ sung:</b>
+    <ul id="errList"></ul>
+  </div>
+
+  <form id="form" novalidate>
+    <div class="card neu">
+      <div class="section-title"><span class="n">1</span> Tổ đội báo cáo</div>
+      <div class="grid">
+        <div class="field" data-key="teamSelect">
+          <label>Chọn tổ đội<span class="req">*</span></label>
+          <select id="teamSelect">
+            <option value="">— Đang tải danh sách —</option>
+          </select>
+        </div>
+        <div class="field" id="newTeamWrap" style="display:none">
+          <label>Tên tổ đội mới<span class="req">*</span></label>
+          <input id="newTeam" type="text" placeholder="VD: Lê Hoài Ân">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin:2px 6px 12px"><span class="n">2</span> Các công trình trong tuần</div>
+    <div id="rows"></div>
+    <button type="button" class="btn" id="addRow" style="margin-bottom:18px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Thêm công trình
+    </button>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-fire" id="submitBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="submitLabel">Gửi báo cáo vào Excel</span>
+      </button>
+      <button type="button" class="btn" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Làm mới
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  var BASE = "<?= baseUrl ?>";
+  var FILE_ID = "<?= fileId ?>";
+  var IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+  function gs(fn){ return function(){ var a=arguments; return new Promise(function(ok,er){
+    google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){er(new Error(e&&e.message?e.message:e))})[fn].apply(google.script.run,a);
+  }); }; }
+  var MOCK_INFO={ok:true,name:'Báo cáo tuần 29 (14.07–20.07.2026)',teams:['Lê Hoài Ân','Vũ Gia Nguyễn','BHP']};
+  function apiInfo(id){ return IS_GAS ? gs('getWeekInfo')(id) : Promise.resolve(MOCK_INFO); }
+  function apiAdd(id,team,rows){ return IS_GAS ? gs('addReport')(id,team,rows) : Promise.resolve({ok:true,added:rows.length,tenDoi:team,url:'#'}); }
+
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){var d=document.createElement("div");d.textContent=(s==null?"":s);return d.innerHTML;}
+
+  var NEWVAL="__new__";
+
+  /* ----- các dòng công trình ----- */
+  var rowSeq=0;
+  function rowHtml(){
+    rowSeq++;
+    return '<div class="repeat-item" data-row>'+
+      '<button type="button" class="rm" onclick="removeRow(this)" aria-label="Xóa công trình"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'+
+      '<div class="repeat-idx">Công trình</div>'+
+      '<div class="grid">'+
+        '<div class="field full"><label>Tên công trình<span class="req">*</span></label><input class="f-congTrinh" type="text" placeholder="VD: TTVH TT - NK"><span class="err">Bắt buộc nhập.</span></div>'+
+        '<div class="field"><label>Hạng mục<span class="req">*</span></label><input class="f-hangMuc" type="text" placeholder="VD: Báo cháy địa chỉ"><span class="err">Bắt buộc nhập.</span></div>'+
+        '<div class="field"><label>Khối lượng thực hiện<span class="req">*</span></label><input class="f-khoiLuong" type="text" placeholder="VD: 85%"><span class="err">Bắt buộc nhập.</span></div>'+
+        '<div class="field full"><label>Khó khăn</label><textarea class="f-khoKhan" placeholder="Nếu có (để trống nếu không)"></textarea></div>'+
+        '<div class="field"><label>Tiến độ cam kết hoàn thành</label><input class="f-tienDo" type="text" placeholder="VD: 30.7.2026"></div>'+
+        '<div class="field"><label>Yêu cầu khác</label><input class="f-yeuCau" type="text" placeholder="Nếu có"></div>'+
+      '</div></div>';
+  }
+  function renumber(){
+    var items=document.querySelectorAll('#rows [data-row]');
+    items.forEach(function(it,i){ it.querySelector('.repeat-idx').textContent='Công trình #'+(i+1); it.querySelector('.rm').style.display = items.length>1 ? 'flex':'none'; });
+  }
+  function addRow(){ var d=document.createElement('div'); d.innerHTML=rowHtml(); var node=d.firstChild; $("rows").appendChild(node); renumber(); return node; }
+  window.removeRow=function(btn){ var items=document.querySelectorAll('#rows [data-row]'); if(items.length<=1) return; btn.closest('[data-row]').remove(); renumber(); };
+  $("addRow").onclick=function(){ var n=addRow(); n.querySelector('.f-congTrinh').focus(); };
+
+  /* ----- tải thông tin tuần + danh sách đội ----- */
+  function loadInfo(){
+    apiInfo(FILE_ID).then(function(info){
+      if(info && info.ok){
+        $("weekName").textContent = info.name;
+        var sel=$("teamSelect");
+        var opts='<option value="">— Chọn tổ đội —</option>';
+        (info.teams||[]).forEach(function(t){ opts+='<option value="'+esc(t)+'">'+esc(t)+'</option>'; });
+        opts+='<option value="'+NEWVAL+'">➕ Tạo tổ đội mới…</option>';
+        sel.innerHTML=opts;
+      } else {
+        $("weekName").textContent='(không mở được file tuần)';
+      }
+    }).catch(function(err){ $("weekName").textContent='Lỗi: '+err.message; });
+  }
+  $("teamSelect").addEventListener("change", function(){
+    var isNew = this.value===NEWVAL;
+    $("newTeamWrap").style.display = isNew ? 'flex':'none';
+    if(isNew) $("newTeam").focus();
+  });
+
+  function currentTeam(){
+    var v=$("teamSelect").value;
+    if(v===NEWVAL) return $("newTeam").value.trim();
+    return v;
+  }
+
+  /* ----- gửi ----- */
+  function setLoading(on){
+    var b=$("submitBtn");
+    if(on){ b.setAttribute("disabled","disabled"); b.querySelector("svg").outerHTML='<span class="spin" id="spin"></span>'; $("submitLabel").textContent="Đang ghi..."; }
+    else { b.removeAttribute("disabled"); var sp=$("spin"); if(sp) sp.outerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; $("submitLabel").textContent="Gửi báo cáo vào Excel"; }
+  }
+
+  $("form").addEventListener("submit", function(e){
+    e.preventDefault();
+    $("savedBanner").className="banner";
+    document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+    var errs=[];
+
+    var team=currentTeam();
+    if(!team){ errs.push("Chưa chọn hoặc nhập tên tổ đội"); $("teamSelect").closest(".field").classList.add("invalid"); if($("teamSelect").value===NEWVAL) $("newTeam").closest(".field").classList.add("invalid"); }
+
+    var rows=[]; var items=document.querySelectorAll('#rows [data-row]');
+    items.forEach(function(it,i){
+      var g=function(c){return (it.querySelector(c).value||"").trim();};
+      var r={congTrinh:g('.f-congTrinh'),hangMuc:g('.f-hangMuc'),khoiLuong:g('.f-khoiLuong'),khoKhan:g('.f-khoKhan'),tienDo:g('.f-tienDo'),yeuCau:g('.f-yeuCau')};
+      ['congTrinh','hangMuc','khoiLuong'].forEach(function(k){
+        var map={congTrinh:'.f-congTrinh',hangMuc:'.f-hangMuc',khoiLuong:'.f-khoiLuong'};
+        if(!r[k]){ it.querySelector(map[k]).closest(".field").classList.add("invalid"); }
+      });
+      if(!r.congTrinh||!r.hangMuc||!r.khoiLuong) errs.push("Công trình #"+(i+1)+": thiếu Tên công trình / Hạng mục / Khối lượng");
+      rows.push(r);
+    });
+
+    if(errs.length){
+      var ul=$("errList"); ul.innerHTML="";
+      errs.forEach(function(m){ var li=document.createElement("li"); li.textContent=m; ul.appendChild(li); });
+      $("errsum").classList.add("show");
+      $("errsum").scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
+    $("errsum").classList.remove("show");
+    setLoading(true);
+
+    apiAdd(FILE_ID, team, rows).then(function(res){
+      setLoading(false);
+      if(res && res.ok){
+        var sb=$("savedBanner"); sb.className="banner ok";
+        $("savedText").innerHTML='Đã ghi <b>'+res.added+'</b> công trình vào sheet đội <b>'+esc(res.tenDoi)+'</b>. <a href="'+res.url+'" target="_blank" rel="noopener">Mở Excel »</a>';
+        sb.scrollIntoView({behavior:"smooth",block:"center"});
+        // reset các dòng, giữ nguyên đội đã chọn
+        $("rows").innerHTML=""; addRow();
+        // cập nhật lại danh sách đội (đội mới giờ đã có)
+        loadInfo();
+      } else {
+        var ul=$("errList"); ul.innerHTML="";
+        ((res&&res.thieu)||[(res&&res.msg)||"Lỗi không xác định"]).forEach(function(m){ var li=document.createElement("li"); li.textContent=m; ul.appendChild(li); });
+        $("errsum").classList.add("show");
+      }
+    }).catch(function(err){
+      setLoading(false);
+      var sb=$("savedBanner"); sb.className="banner urgent"; $("savedText").textContent="Lỗi khi ghi: "+err.message;
+    });
+  });
+
+  $("resetBtn").onclick=function(){
+    document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+    $("errsum").classList.remove("show"); $("savedBanner").className="banner";
+    $("teamSelect").value=""; $("newTeamWrap").style.display="none"; $("newTeam").value="";
+    $("rows").innerHTML=""; addRow();
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+
+  // khởi tạo
+  if(!FILE_ID){ $("weekName").textContent="(thiếu mã file tuần — hãy vào từ danh sách tuần)"; }
+  addRow();
+  loadInfo();
+</script>
+</body>
+</html>

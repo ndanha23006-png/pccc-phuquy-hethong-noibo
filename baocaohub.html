@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<?!= include('styles') ?>
+</head>
+<body>
+<div class="wrap">
+  <div class="form-top">
+    <a class="btn btn-sm" href="<?= baseUrl ?>" aria-label="Về trang chủ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Trang chủ
+    </a>
+    <div class="ttl">Báo cáo công việc tuần<small>Chọn tuần để nhập báo cáo · mỗi tuần một file Excel riêng</small></div>
+  </div>
+
+  <div class="sec-label">Các tuần báo cáo</div>
+  <div id="weekList" class="apps">
+    <div class="loadbox neu" id="loadBox">Đang tải danh sách tuần…</div>
+  </div>
+</div>
+
+<!-- Modal thêm tuần mới -->
+<div class="modal-bg" id="modal">
+  <div class="modal neu">
+    <h3>Thêm tuần báo cáo mới</h3>
+    <div class="field" data-key="soTuan">
+      <label>Số tuần<span class="req">*</span></label>
+      <input id="soTuan" type="number" inputmode="numeric" placeholder="VD: 29">
+      <span class="err" id="errSoTuan" style="display:none">Bắt buộc nhập số tuần.</span>
+    </div>
+    <div class="grid">
+      <div class="field"><label>Từ ngày</label><input id="tuNgay" type="date"></div>
+      <div class="field"><label>Đến ngày</label><input id="denNgay" type="date"></div>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn btn-fire" id="btnCreate"><span id="createLabel">Tạo tuần</span></button>
+      <button class="btn" type="button" onclick="closeModal()">Hủy</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+  var BASE = "<?= baseUrl ?>";
+  var IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+  function gs(fn){ return function(){ var a=arguments; return new Promise(function(ok,er){
+    google.script.run.withSuccessHandler(ok).withFailureHandler(function(e){er(new Error(e&&e.message?e.message:e))})[fn].apply(google.script.run,a);
+  }); }; }
+  // Mock để xem trước trên trình duyệt (ngoài Apps Script)
+  var MOCK=[{id:'w29',name:'Báo cáo tuần 29 (14.07–20.07.2026)',teams:3,updated:'23/07/2026 16:00',url:'#'}];
+  function apiWeeks(){ return IS_GAS ? gs('listWeeks')() : Promise.resolve(MOCK); }
+  function apiCreate(a,b,c){ return IS_GAS ? gs('createWeek')(a,b,c) : Promise.resolve({ok:true,id:'w'+a,name:'Báo cáo tuần '+a}); }
+
+  var $=function(id){return document.getElementById(id)};
+  var tmr;
+  function toast(msg){ $("toastText").textContent=msg; var t=$("toast"); t.classList.add("show"); clearTimeout(tmr); tmr=setTimeout(function(){t.classList.remove("show")},2800); }
+  function openModal(){ $("modal").classList.add("show"); $("soTuan").focus(); }
+  function closeModal(){ $("modal").classList.remove("show"); }
+  window.closeModal=closeModal;
+
+  function esc(s){var d=document.createElement("div");d.textContent=(s==null?"":s);return d.innerHTML;}
+
+  function render(weeks){
+    var html = '';
+    // thẻ thêm tuần mới
+    html += '<button class="app add" onclick="openModal()">'+
+      '<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>'+
+      '<h3>Thêm tuần mới</h3><p>Tạo file Excel cho một tuần báo cáo mới.</p></button>';
+    weeks.forEach(function(w){
+      html += '<a class="app live" href="'+BASE+'?page=baocao&file='+encodeURIComponent(w.id)+'" style="text-decoration:none;color:inherit">'+
+        '<span class="badge on">'+w.teams+' tổ đội</span>'+
+        '<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>'+
+        '<h3>'+esc(w.name)+'</h3>'+
+        '<p class="weekmeta">Cập nhật: '+esc(w.updated||'—')+'</p></a>';
+    });
+    $("weekList").innerHTML = html;
+  }
+
+  function load(){
+    apiWeeks().then(function(weeks){
+      if(!weeks || !weeks.length){ render([]); }
+      else render(weeks);
+    }).catch(function(err){
+      $("weekList").innerHTML='<div class="loadbox neu">Lỗi tải danh sách: '+esc(err.message)+'</div>';
+    });
+  }
+  window.openModal=openModal;
+
+  $("btnCreate").onclick=function(){
+    var st=$("soTuan").value.trim();
+    if(!st){ $("errSoTuan").style.display="block"; $("soTuan").focus(); return; }
+    $("errSoTuan").style.display="none";
+    var b=$("btnCreate"); b.setAttribute("disabled","disabled"); $("createLabel").textContent="Đang tạo...";
+    apiCreate(st, $("tuNgay").value, $("denNgay").value).then(function(res){
+      b.removeAttribute("disabled"); $("createLabel").textContent="Tạo tuần";
+      if(res && res.ok){
+        closeModal();
+        toast('Đã tạo "'+res.name+'"');
+        if(IS_GAS){ location.href = BASE+'?page=baocao&file='+encodeURIComponent(res.id); }
+        else { MOCK.unshift({id:res.id,name:res.name,teams:0,updated:'vừa xong'}); render(MOCK); }
+      } else {
+        toast('Không tạo được: '+((res&&res.msg)||'lỗi'));
+      }
+    }).catch(function(err){
+      b.removeAttribute("disabled"); $("createLabel").textContent="Tạo tuần";
+      toast('Lỗi: '+err.message);
+    });
+  };
+
+  $("modal").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
+
+  load();
+</script>
+</body>
+</html>

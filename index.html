@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<?!= include('styles') ?>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar neu">
+    <div class="brand">
+      <div class="emblem" title="PQC Group – Phú Quý">
+        <svg viewBox="0 0 56 56" fill="none" aria-label="PQC Group logo">
+          <path d="M22 50 V20 A10 10 0 0 1 22 40" stroke="#20388A" stroke-width="7" stroke-linecap="round"/>
+          <path d="M20 7.5 L21.12 10.46 24.28 10.61 21.81 12.59 22.64 15.64 20 13.9 17.36 15.64 18.19 12.59 15.72 10.61 18.88 10.46 Z" fill="#E1122A"/>
+        </svg>
+      </div>
+      <div style="min-width:0">
+        <div class="name">PCCC <b>PHÚ QUÝ</b></div>
+        <div class="co">Công ty TNHH XD TM Phú Quý</div>
+        <div class="slo">Nâng tầm an toàn · Nâng tầm hiệu quả</div>
+      </div>
+    </div>
+    <a class="btn btn-fire call" href="tel:0907437303">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span class="ph"><small>Hotline</small><b>0907 437 303</b></span>
+    </a>
+  </div>
+
+  <div class="hero neu">
+    <div class="hero-txt">
+      <h1>Hệ thống <span>biểu mẫu &amp; tự động hóa</span> nội bộ</h1>
+      <p>Cổng tập trung các công cụ số hóa quy trình của Công ty TNHH XD TM Phú Quý — ghi nhận, phân loại và giao việc nhanh chóng cho các phòng ban và tổ đội.</p>
+      <div class="stats">
+        <div class="stat neu-in"><b data-count="19">19</b><small>Năm kinh nghiệm</small></div>
+        <div class="stat neu-in"><b data-count="300" data-suffix="+">300+</b><small>Dự án lớn</small></div>
+        <div class="stat neu-in"><b data-count="100" data-suffix="+">100+</b><small>Nhân viên</small></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E11D2A"/><stop offset="1" stop-color="#F9A825"/></linearGradient></defs></svg>
+      <span class="glow"></span>
+      <span class="ring ring1"></span><span class="ring ring2"></span>
+      <span class="halo"></span>
+      <span class="ember e1"></span><span class="ember e2"></span><span class="ember e3"></span><span class="ember e4"></span><span class="ember e5"></span>
+      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+      <div class="chip c1" title="Bình chữa cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3H14"/><path d="M14 3l2.5 2.5"/><path d="M9.5 3V2"/><rect x="7" y="6.5" width="8" height="15" rx="3"/><path d="M7.5 11h7"/></svg></div>
+      <div class="chip c2" title="Thiết bị báo cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <div class="chip c3" title="Hệ thống nước chữa cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7c3 3.5 6 6.5 6 10.3a6 6 0 0 1-12 0c0-3.8 3-6.8 6-10.3z"/></svg></div>
+      <div class="shield"><svg class="flame" viewBox="0 0 24 24"><path d="M12 2c.5 3-1.5 4-2.7 5.5C8 9 7 10.5 7 12.7 7 16.2 9.5 19 12 19s5-2.8 5-6.3c0-1.6-.6-2.9-1.4-4.1-.3.9-1 1.6-1.9 1.9.6-1.6.2-3.9-1.7-5.5-.1 1.6-.9 2.4-1.8 3.1C9.4 5.4 11 4 12 2z"/></svg></div>
+    </div>
+  </div>
+
+  <div class="sec-label">Công cụ &amp; Biểu mẫu</div>
+  <div class="apps">
+    <!-- Tính năng đang hoạt động: dẫn sang trang phanhoi -->
+    <a class="app live" href="<?= baseUrl ?>?page=phanhoi" style="text-decoration:none;color:inherit">
+      <span class="badge on">Đang chạy</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></div>
+      <h3>Xử lý phản hồi tổ đội</h3>
+      <p>Ghi nhận phản hồi chưa hài lòng, phân loại ưu tiên &amp; giao việc xử lý.</p>
+    </a>
+    <!-- Tính năng sắp ra mắt: hiện thông báo -->
+    <a class="app live" href="<?= baseUrl ?>?page=baocaohub" style="text-decoration:none;color:inherit">
+      <span class="badge on">Đang chạy</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
+      <h3>Báo cáo công việc tuần của ĐỘI KHOÁN PHÚ QUÝ</h3>
+      <p>Đội khoán nhập báo cáo tuần, tự động ghi vào file Excel của tuần.</p>
+    </a>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M9 6h6l1 4H8z"/><path d="M8 10c-1.5 1.5-2 3.5-2 6 0 3.3 2.7 6 6 6s6-2.7 6-6c0-2.5-.5-4.5-2-6"/></svg></div>
+      <h3>Quản lý thiết bị PCCC</h3>
+      <p>Theo dõi bình chữa cháy, thiết bị báo cháy, hạn kiểm định.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a6 6 0 0 1 12 0"/><circle cx="8" cy="6" r="4"/><path d="M18 8l2 2 4-4"/></svg></div>
+      <h3>Nhật ký thi công công trình</h3>
+      <p>Ghi nhận diễn biến thi công, nhân sự và an toàn lao động tại công trình.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></div>
+      <h3>Đề xuất – cấp phát vật tư</h3>
+      <p>Yêu cầu và duyệt cấp phát vật tư, thiết bị cho từng dự án.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6a2 2 0 0 0 2.8 2.8l6-6a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2z"/></svg></div>
+      <h3>Kiểm tra – bảo trì định kỳ</h3>
+      <p>Lịch bảo trì, bảo dưỡng hệ thống PCCC theo chu kỳ cam kết.</p>
+    </button>
+  </div>
+
+  <div class="contact neu">
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><div class="lb">Hotline</div><div class="vl"><a href="tel:0907437303">0907 437 303</a></div></div></div>
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="m22 6-10 7L2 6"/></svg></div><div><div class="lb">Email</div><div class="vl"><a href="mailto:phuquypccc68@gmail.com">phuquypccc68@gmail.com</a></div></div></div>
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="lb">Địa chỉ</div><div class="vl">Số 68, đường số 3, khu TĐC ĐH Y Dược, P. Tân An, TP. Cần Thơ</div></div></div>
+  </div>
+  <div class="foot">CÔNG TY TNHH XÂY DỰNG THƯƠNG MẠI PHÚ QUÝ · pcccphuquy.com<br>Hệ thống nội bộ — dùng cho quản lý dự án &amp; thi công.</div>
+</div>
+
+<div id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+  <span>Đội ngũ đang xây dựng — tính năng sẽ sớm ra mắt!</span>
+</div>
+
+<script>
+  var tmr;
+  function soon(){ var t=document.getElementById("toast"); t.classList.add("show"); clearTimeout(tmr); tmr=setTimeout(function(){t.classList.remove("show")},2600); }
+
+  /* ---- Hiệu ứng đếm số khi tải trang ---- */
+  (function(){
+    function countUp(el){
+      var target=parseFloat(el.getAttribute("data-count"))||0, suffix=el.getAttribute("data-suffix")||"";
+      if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent=target+suffix; return; }
+      var dur=1500,start=null;
+      function step(ts){ if(!start)start=ts; var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+        el.textContent=Math.round(e*target)+suffix; if(p<1)requestAnimationFrame(step); else el.textContent=target+suffix; }
+      requestAnimationFrame(step);
+    }
+    document.querySelectorAll('.stat b[data-count]').forEach(countUp);
+  })();
+</script>
+</body>
+</html>
