@@ -9,7 +9,7 @@
 
 /*==================== CẤU HÌNH (SỬA Ở ĐÂY) ====================*/
 // 1) ID thư mục Drive để lưu file Word (lấy từ URL thư mục, xem hướng dẫn)
-var FOLDER_ID = 'DAN_ID_THU_MUC_DRIVE_VAO_DAY';
+var FOLDER_ID = '1GQ4j11Zf_cPe610-8tEGAQ9RegJfACS0';
 
 // 2) Email nhận tin nội bộ (tạm thay Zalo). Để trống '' nếu không muốn gửi mail.
 var EMAIL_NHAN_MAC_DINH = 'ndanha23006@cusc.ctu.edu.vn';
