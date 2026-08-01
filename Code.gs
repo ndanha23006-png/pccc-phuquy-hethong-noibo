@@ -9,7 +9,7 @@
 
 /*==================== CẤU HÌNH (SỬA Ở ĐÂY) ====================*/
 // 1) ID thư mục Drive để lưu file Word (lấy từ URL thư mục, xem hướng dẫn)
-var FOLDER_ID = '1GQ4j11Zf_cPe610-8tEGAQ9RegJfACS0';
+var FOLDER_ID = 'DAN_ID_THU_MUC_DRIVE_VAO_DAY';
 
 // 2) Email nhận tin nội bộ (tạm thay Zalo). Để trống '' nếu không muốn gửi mail.
 var EMAIL_NHAN_MAC_DINH = 'ndanha23006@cusc.ctu.edu.vn';
@@ -18,7 +18,10 @@ var EMAIL_NHAN_MAC_DINH = 'ndanha23006@cusc.ctu.edu.vn';
 var GUI_EMAIL = true;
 
 // 4) ID thư mục Drive chứa các file Google Sheets "Báo cáo công việc tuần"
-var BAOCAO_FOLDER_ID = '1W-F_GHTIf--zuY0v79D0YfkB6KNE9EXC';
+var BAOCAO_FOLDER_ID = '1prThrEFwWYyNMzJQh3y66ZjvjNyRCE5k';
+
+// 5) ID thư mục Drive chứa các file "Tổng hợp công việc đội khoán" được in ra
+var TONGHOP_FOLDER_ID = '1KDGPggGYJKksBw4YW379FVyp7X-a5kdp';
 
 // Danh sách trang hợp lệ (thêm trang mới vào đây khi phát triển tính năng)
 var TRANG_HOP_LE = ['index', 'phanhoi', 'baocaohub', 'baocao'];
@@ -33,6 +36,8 @@ function doGet(e) {
   var t = HtmlService.createTemplateFromFile(page);
   t.baseUrl = ScriptApp.getService().getUrl(); // URL gốc web app, để điều hướng giữa các trang
   t.fileId = (e && e.parameter && e.parameter.file) ? e.parameter.file : ''; // ID file tuần (trang baocao)
+  t.urlTuan = 'https://drive.google.com/drive/folders/' + BAOCAO_FOLDER_ID;
+  t.urlTongHop = 'https://drive.google.com/drive/folders/' + TONGHOP_FOLDER_ID;
   return t.evaluate()
     .setTitle('PCCC Phú Quý · Hệ thống nội bộ')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -290,6 +295,106 @@ function _teamSheet(ss, team) {
 function _sanitizeSheetName(s) {
   return String(s).replace(/[\[\]\*\/\\\?\:]/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 90) || 'Tổ đội';
 }
+/*******************************************************
+ *  IN BẢNG TỔNG HỢP CÔNG VIỆC ĐỘI KHOÁN (theo template)
+ *  - Gom dữ liệu mọi sheet đội trong 1 file tuần
+ *  - In lại thì xoá bản cũ cùng tuần
+ *******************************************************/
+
+var TH_PREFIX = 'TỔNG HỢP - ';
+var TH_HEADER = ['STT', 'Khối / Phòng phụ trách', 'Tên công trình', 'Hạng mục & Đội thực hiện (chi tiết)',
+                 'Cán bộ HT', 'Tiến độ hiện trường', 'Trạng thái', 'Vướng mắc cần tháo gỡ',
+                 'Vướng mắc vật tư (VTTB)', 'Mục tiêu / Việc kỳ tới', 'Deadline', 'Ưu tiên', 'CEO CHỈ ĐẠO'];
+var TH_WIDTHS = [40, 130, 175, 245, 100, 215, 90, 245, 200, 200, 145, 80, 215];
+
+/** Liệt kê các file tổng hợp đã in */
+function listTongHop() {
+  var folder = DriveApp.getFolderById(TONGHOP_FOLDER_ID);
+  var it = folder.getFilesByType(MimeType.GOOGLE_SHEETS);
+  var out = [];
+  while (it.hasNext()) {
+    var f = it.next();
+    out.push({
+      id: f.getId(), name: f.getName(), url: f.getUrl(),
+      updated: Utilities.formatDate(f.getLastUpdated(), 'GMT+7', 'dd/MM/yyyy HH:mm')
+    });
+  }
+  out.sort(function (a, b) { return b.name.localeCompare(a.name, 'vi', { numeric: true }); });
+  return out;
+}
+
+/** In bảng tổng hợp cho 1 tuần (xoá bản cũ nếu đã in trước đó) */
+function inTongHop(weekFileId) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    if (!weekFileId) return { ok: false, msg: 'Thiếu mã file tuần' };
+    var weekName = DriveApp.getFileById(weekFileId).getName();
+    var ss = SpreadsheetApp.openById(weekFileId);
+
+    // Gom dữ liệu từ mọi sheet đội
+    var rows = [];
+    ss.getSheets().forEach(function (sh) {
+      if (_isMetaSheet(sh.getName())) return;
+      var last = sh.getLastRow();
+      if (last < 3) return; // 2 dòng đầu là tiêu đề
+      var vals = sh.getRange(3, 1, last - 2, BC_HEADER.length).getValues();
+      vals.forEach(function (r) {
+        if (!String(r[1] || '').trim()) return; // cột B = Tên công trình
+        rows.push({
+          team: sh.getName(), congTrinh: r[1], hangMuc: r[2], khoiLuong: r[3],
+          khoKhan: r[4], tienDo: r[5], yeuCau: r[6]
+        });
+      });
+    });
+    if (!rows.length) return { ok: false, msg: 'Tuần này chưa có dữ liệu báo cáo nào để tổng hợp' };
+
+    // Xoá bản tổng hợp cũ của đúng tuần này
+    var folder = DriveApp.getFolderById(TONGHOP_FOLDER_ID);
+    var outName = TH_PREFIX + weekName;
+    var olds = folder.getFilesByName(outName);
+    var replaced = 0;
+    while (olds.hasNext()) { olds.next().setTrashed(true); replaced++; }
+
+    // Tạo file mới theo template
+    var nss = SpreadsheetApp.create(outName);
+    var nf = DriveApp.getFileById(nss.getId());
+    folder.addFile(nf);
+    try { DriveApp.getRootFolder().removeFile(nf); } catch (e) {}
+
+    var sh = nss.getSheets()[0];
+    sh.setName('TONG HOP DOI KHOAN');
+    var N = TH_HEADER.length;
+
+    sh.getRange(1, 1, 1, N).merge().setValue('CÔNG TY TNHH XD THƯƠNG MẠI PHÚ QUÝ')
+      .setFontWeight('bold').setFontSize(13).setHorizontalAlignment('center');
+    sh.getRange(2, 1, 1, N).merge().setValue('TỔNG HỢP CÔNG VIỆC ĐỘI KHOÁN – ' + weekName.toUpperCase())
+      .setFontWeight('bold').setFontSize(12).setHorizontalAlignment('center');
+    sh.getRange(3, 1, 1, N).merge()
+      .setValue('Mỗi công trình 1 dòng. Dữ liệu nạp tự động từ báo cáo tuần của các đội khoán (web app). ' +
+                'Ô để trống = chưa có thông tin báo cáo, không tự suy diễn/bổ sung số liệu.')
+      .setFontStyle('italic').setFontSize(9).setWrap(true).setHorizontalAlignment('center');
+
+    sh.getRange(5, 1, 1, N).setValues([TH_HEADER])
+      .setFontWeight('bold').setBackground('#f2eade').setWrap(true).setVerticalAlignment('middle');
+
+    // Map dữ liệu -> cột template (cột không có nguồn để trống)
+    var values = rows.map(function (r, i) {
+      return [i + 1, '', r.congTrinh, r.hangMuc + ' (Đội: ' + r.team + ')', '',
+              r.khoiLuong, '', r.khoKhan, r.yeuCau, '', r.tienDo, '', ''];
+    });
+    sh.getRange(6, 1, values.length, N).setValues(values).setWrap(true).setVerticalAlignment('top');
+
+    for (var c = 0; c < N; c++) sh.setColumnWidth(c + 1, TH_WIDTHS[c]);
+    sh.setFrozenRows(5);
+    sh.getRange(5, 1, values.length + 1, N).setBorder(true, true, true, true, true, true);
+
+    return { ok: true, name: outName, url: nss.getUrl(), count: values.length, replaced: replaced > 0 };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function _weekFileName(soTuan, bd, kt) {
   var dm = function (v) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? (m[3] + '.' + m[2]) : ''; };
   var dmy = function (v) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? (m[3] + '.' + m[2] + '.' + m[1]) : ''; };

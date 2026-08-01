@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCCC Phú Quý · Hệ thống biểu mẫu nội bộ</title>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#dccdb2; --card:#f2eade;
+  --sh-dark:#b0a081; --sh-light:#fffdf5;
+  --fire:#D62828; --fire-dark:#A61B1B; --ember:#F97316; --amber:#E8930C;
+  --fg:#2b2318; --muted:#7a6f5c; --line:#d8ccb7;
+  --ok:#059669; --ok-bg:#e7f6ef; --warn:#D97706; --warn-bg:#fdf4e3; --danger:#DC2626; --danger-bg:#fbeaea;
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:18px 16px 56px}
+/* Neumorphic helpers */
+.neu{background:var(--card);border-radius:var(--radius);box-shadow:9px 9px 22px var(--sh-dark),-8px -8px 20px var(--sh-light)}
+.neu-in{background:var(--card);border-radius:14px;box-shadow:inset 3px 3px 7px var(--sh-dark),inset -3px -3px 7px var(--sh-light)}
+.btn{cursor:pointer;font-family:inherit;font-weight:600;border:none;background:var(--card);border-radius:12px;text-decoration:none;
+  box-shadow:5px 5px 11px var(--sh-dark),-5px -5px 11px var(--sh-light);transition:box-shadow .18s,transform .1s,color .18s;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;color:var(--fg);font-size:14px;padding:11px 18px}
+.call .ph b{text-decoration:none}
+.btn:hover{box-shadow:2px 2px 6px var(--sh-dark),-2px -2px 6px var(--sh-light)}
+.btn:active{box-shadow:inset 3px 3px 7px var(--sh-dark),inset -3px -3px 7px var(--sh-light);transform:translateY(1px)}
+.btn svg{width:17px;height:17px}
+.btn-sm{padding:8px 13px;font-size:12.5px;border-radius:10px}
+.btn-fire{background:linear-gradient(135deg,var(--fire),var(--ember));color:#fff;box-shadow:5px 5px 12px var(--sh-dark),-5px -5px 12px var(--sh-light)}
+.btn-fire:hover{filter:brightness(1.05)}
+.btn-fire:active{box-shadow:inset 2px 2px 6px rgba(0,0,0,.25)}
+.view{display:none;animation:fade .3s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ============ HOME ============ */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px;margin-bottom:18px}
+.brand{display:flex;align-items:center;gap:15px;min-width:0}
+.emblem{position:relative;flex:0 0 auto;width:64px;height:64px;border-radius:18px;background:#ffffff;
+  display:flex;align-items:center;justify-content:center;box-shadow:4px 4px 10px var(--sh-dark),-4px -4px 10px var(--sh-light)}
+.emblem::after{content:"";position:absolute;inset:4px;border-radius:14px;border:1.5px solid rgba(32,56,138,.14);pointer-events:none}
+.emblem svg{width:44px;height:44px}
+.brand .name{font-weight:900;font-size:22px;letter-spacing:.02em;line-height:1.05}
+.brand .name b{color:var(--fire)}
+.brand .co{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.brand .slo{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .call{flex:0 0 auto;padding:10px 18px;border-radius:15px;gap:11px}
+.call .ph{display:flex;flex-direction:column;line-height:1.05;text-align:left}
+.call .ph small{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;opacity:.9;font-weight:700}
+.call .ph b{font-size:16px;font-weight:800}
+.call svg{width:21px;height:21px}
+@media(max-width:560px){.brand .name{font-size:18px}.emblem{width:52px;height:52px}.emblem svg{width:29px;height:29px}.call .ph small{display:none}.topbar{padding:15px 16px}}
+
+.hero{position:relative;overflow:hidden;padding:24px 24px;margin-bottom:18px;display:flex;align-items:center;gap:16px}
+.hero-txt{flex:1 1 auto;min-width:0;position:relative;z-index:2}
+.hero h1{font-size:22px;line-height:1.28;margin:0 0 8px;font-weight:800}
+.hero h1 span{color:var(--fire)}
+.hero p{margin:0 0 18px;color:var(--muted);font-size:14px;max-width:520px}
+.stats{display:flex;gap:12px;flex-wrap:wrap}
+/* ---- animated fire-safety art ---- */
+.hero-art{position:relative;flex:0 0 auto;width:220px;height:200px}
+.hero-art .glow{position:absolute;left:50%;top:50%;width:192px;height:192px;margin:-96px 0 0 -96px;border-radius:50%;
+  background:radial-gradient(circle at 42% 36%,rgba(255,196,92,.60),rgba(249,115,22,.32) 40%,rgba(214,40,40,.16) 62%,transparent 74%);animation:pulseGlow 3.2s ease-in-out infinite}
+.hero-art .ring{position:absolute;left:50%;top:50%;border-radius:50%;pointer-events:none}
+.hero-art .ring1{width:160px;height:160px;margin:-80px 0 0 -80px;border:2px dashed rgba(249,115,22,.5);animation:spinCW 16s linear infinite}
+.hero-art .ring2{width:126px;height:126px;margin:-63px 0 0 -63px;border:2px dotted rgba(214,40,40,.42);animation:spinCCW 11s linear infinite}
+.hero-art .halo{position:absolute;left:50%;top:50%;width:106px;height:106px;margin:-53px 0 0 -53px;border-radius:50%;border:2px solid rgba(249,115,22,.6);animation:halo 2.8s ease-out infinite}
+.hero-art .shield{position:absolute;left:50%;top:50%;width:106px;height:106px;margin:-53px 0 0 -53px;border-radius:50%;
+  background:radial-gradient(circle at 38% 30%,#ffffff,#ffe7cf 68%,#ffd6b0);
+  box-shadow:6px 6px 16px var(--sh-dark),-6px -6px 16px var(--sh-light),inset 0 0 20px rgba(249,115,22,.28);
+  display:flex;align-items:center;justify-content:center;animation:floatY 4.5s ease-in-out infinite;z-index:2}
+.hero-art .shield .flame{width:56px;height:56px;transform-origin:50% 85%;animation:flick 1.15s ease-in-out infinite;filter:drop-shadow(0 3px 9px rgba(225,29,42,.55))}
+.hero-art .shield .flame path{fill:url(#gf)}
+.hero-art .chip{position:absolute;width:48px;height:48px;border-radius:15px;
+  box-shadow:4px 4px 12px var(--sh-dark),-4px -4px 12px var(--sh-light);display:flex;align-items:center;justify-content:center;z-index:3}
+.hero-art .chip svg{width:25px;height:25px}
+.hero-art .c1{left:0;top:12px;background:linear-gradient(145deg,#fff,#ffd9d2);animation:floatY 3.6s ease-in-out infinite}
+.hero-art .c1 svg{color:#E11D2A}
+.hero-art .c2{right:2px;top:0;background:linear-gradient(145deg,#fff,#ffe9c6);animation:floatY 4.2s ease-in-out .4s infinite}
+.hero-art .c2 svg{color:#E8930C;animation:ring 1.6s ease-in-out infinite;transform-origin:50% 12%}
+.hero-art .c3{right:14px;bottom:8px;background:linear-gradient(145deg,#fff,#d6eaff);animation:floatY 3.9s ease-in-out .8s infinite}
+.hero-art .c3 svg{color:#2563EB}
+.hero-art .ember{position:absolute;left:50%;bottom:46px;width:7px;height:7px;border-radius:50%;opacity:0;z-index:2}
+.hero-art .e1{margin-left:-16px;background:#F97316;animation:ember 2.4s ease-in .2s infinite}
+.hero-art .e2{margin-left:0;background:#E11D2A;animation:ember 2.8s ease-in 1s infinite}
+.hero-art .e3{margin-left:16px;background:#F59E0B;animation:ember 2.2s ease-in 1.6s infinite}
+.hero-art .e4{margin-left:-8px;width:5px;height:5px;background:#FB923C;animation:ember 3.1s ease-in .6s infinite}
+.hero-art .e5{margin-left:9px;width:5px;height:5px;background:#F43F5E;animation:ember 2.6s ease-in 1.9s infinite}
+.hero-art .spark{position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;box-shadow:0 0 7px 1px rgba(255,200,120,.95);opacity:0;z-index:3}
+.hero-art .s1{left:22px;top:34px;animation:twinkle 2.2s ease-in-out .3s infinite}
+.hero-art .s2{right:28px;top:58px;animation:twinkle 2.6s ease-in-out 1.1s infinite}
+.hero-art .s3{left:50px;bottom:28px;animation:twinkle 2.4s ease-in-out 1.7s infinite}
+@keyframes flick{0%,100%{transform:scale(1) rotate(-2deg)}45%{transform:scale(1.05,1.14) rotate(2deg)}70%{transform:scale(.97,1.05) rotate(-1deg)}}
+@keyframes pulseGlow{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.14);opacity:.85}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes ring{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes ember{0%{transform:translateY(0) scale(1);opacity:0}18%{opacity:.95}100%{transform:translateY(-62px) scale(.3);opacity:0}}
+@keyframes spinCW{to{transform:rotate(360deg)}}
+@keyframes spinCCW{to{transform:rotate(-360deg)}}
+@keyframes halo{0%{transform:scale(.7);opacity:.75}100%{transform:scale(1.7);opacity:0}}
+@keyframes twinkle{0%,100%{transform:scale(.5);opacity:0}50%{transform:scale(1.2);opacity:1}}
+@keyframes emblemFlick{0%,100%{transform:scale(1)}50%{transform:scale(1.1,1.16)}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(225,29,42,.45)}70%{box-shadow:0 0 0 12px rgba(225,29,42,0)}100%{box-shadow:0 0 0 0 rgba(225,29,42,0)}}
+@media(max-width:760px){.hero{flex-direction:column-reverse;text-align:center}.hero-txt{text-align:left;width:100%}.hero-art{width:186px;height:186px;margin:-2px auto 4px;transform:scale(.9);transform-origin:center}}
+@media (prefers-reduced-motion: reduce){.hero-art .glow,.hero-art .shield,.hero-art .flame,.hero-art .chip,.hero-art .chip svg,.hero-art .ember,.hero-art .ring,.hero-art .halo,.hero-art .spark,.emblem svg,.app.live .ic{animation:none!important}}
+.stat{flex:1 1 120px;padding:12px 14px;border-radius:14px;text-align:center}
+.stat b{display:block;font-size:20px;font-weight:800;color:var(--fire);line-height:1}
+.stat small{font-size:11.5px;color:var(--muted)}
+
+.sec-label{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 6px 14px}
+.sec-label::before{content:"";width:22px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--fire),var(--ember))}
+
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.app{position:relative;padding:20px;text-align:left;cursor:pointer;border:none;background:var(--card);border-radius:var(--radius);
+  box-shadow:7px 7px 16px var(--sh-dark),-7px -7px 16px var(--sh-light);transition:box-shadow .18s,transform .12s;font-family:inherit}
+.app:hover{transform:translateY(-2px);box-shadow:9px 9px 20px var(--sh-dark),-9px -9px 20px var(--sh-light)}
+.app:active{transform:translateY(0);box-shadow:inset 3px 3px 8px var(--sh-dark),inset -3px -3px 8px var(--sh-light)}
+.app .ic{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;
+  box-shadow:inset 3px 3px 6px var(--sh-dark),inset -3px -3px 6px var(--sh-light)}
+.app .ic svg{width:27px;height:27px;color:var(--fire)}
+.app.live .ic{background:linear-gradient(135deg,var(--fire),var(--ember));box-shadow:3px 3px 8px var(--sh-dark),-3px -3px 8px var(--sh-light);animation:pulseRing 2.4s ease-out infinite}
+.app.live .ic svg{color:#fff}
+.app h3{margin:0 0 5px;font-size:15.5px;font-weight:700}
+.app p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}
+.badge{position:absolute;top:16px;right:16px;font-size:10px;font-weight:800;letter-spacing:.04em;padding:4px 9px;border-radius:999px;text-transform:uppercase}
+.badge.on{color:#fff;background:linear-gradient(135deg,var(--fire),var(--ember))}
+.badge.soon{color:var(--muted);background:var(--card);box-shadow:inset 2px 2px 4px var(--sh-dark),inset -2px -2px 4px var(--sh-light)}
+.app.soon{opacity:.92}
+.app.soon .ic svg{color:var(--muted)}
+
+.contact{margin-top:22px;padding:20px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.ci{display:flex;align-items:center;gap:12px}
+.ci .cic{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light)}
+.ci .cic svg{width:19px;height:19px;color:var(--fire)}
+.ci .lb{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.ci .vl{font-size:13.5px;font-weight:600;color:var(--fg)}
+.ci a{color:inherit;text-decoration:none}
+.foot{text-align:center;color:var(--muted);font-size:11.5px;margin-top:18px;line-height:1.7}
+
+/* ============ FORM ============ */
+.form-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.form-top .ttl{font-weight:800;font-size:18px;line-height:1.2}
+.form-top .ttl small{display:block;font-size:11.5px;font-weight:500;color:var(--muted);letter-spacing:0}
+.card{padding:22px;margin-bottom:18px}
+.section-title{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--fire);margin:4px 0 16px}
+.section-title .n{width:22px;height:22px;border-radius:8px;color:#fff;background:linear-gradient(135deg,var(--fire),var(--ember));display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:600;color:#374151}
+label .req{color:var(--fire);margin-left:2px}
+.hint{font-size:12px;color:var(--muted);font-weight:400}
+input,select,textarea{font-family:inherit;font-size:14.5px;color:var(--fg);border:1.5px solid #cbbd9f;border-radius:12px;padding:11px 13px;width:100%;
+  background:var(--card);box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light);transition:box-shadow .16s,border-color .16s}
+select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23D62828' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:38px}
+input[type="date"],input[type="time"],input[type="datetime-local"]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;text-align:left;min-height:47px;line-height:1.5}
+input[type="datetime-local"]::-webkit-date-and-time-value{text-align:left;margin:0;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--fire);box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light),0 0 0 3px rgba(225,29,42,.18)}
+textarea{resize:vertical;min-height:82px}
+.field.invalid input,.field.invalid select,.field.invalid textarea{border-color:var(--fire);box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light),0 0 0 2px rgba(225,29,42,.25)}
+.field .err{display:none;font-size:12px;color:var(--fire);font-weight:600}
+.field.invalid .err{display:block}
+.sep{height:1px;background:var(--line);border:0;margin:20px 0}
+/* banner */
+.banner{display:none;align-items:center;gap:11px;padding:13px 15px;border-radius:13px;margin-bottom:16px;font-weight:600;font-size:13.5px}
+.banner svg{flex:0 0 auto;width:20px;height:20px}
+.banner.high{display:flex;background:var(--warn-bg);color:#92400E;box-shadow:inset 2px 2px 5px #e8dcc0,inset -2px -2px 5px #fff}
+.banner.urgent{display:flex;background:var(--danger-bg);color:#991B1B;box-shadow:inset 2px 2px 5px #ecc9c9,inset -2px -2px 5px #fff}
+/* error summary — compact */
+.errsum{display:none;background:var(--danger-bg);border-radius:13px;color:#991B1B;padding:13px 15px;margin-bottom:16px;
+  box-shadow:inset 2px 2px 5px #ecc9c9,inset -2px -2px 5px #fff}
+.errsum.show{display:block}
+.errsum b{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13.5px}
+.errsum b svg{width:18px;height:18px;flex:0 0 auto}
+.errsum ul{margin:0;padding-left:20px;font-size:13px;columns:2;column-gap:18px}
+@media(max-width:520px){.errsum ul{columns:1}}
+.errsum a{color:#991B1B;font-weight:600;cursor:pointer;text-decoration:underline}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+/* results */
+#results{display:none}
+#results.show{display:block}
+.out-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.out-head h3{font-size:15px;margin:0;display:flex;align-items:center;gap:8px}
+.out-head h3 svg{width:18px;height:18px;color:var(--fire)}
+.record{white-space:pre-wrap;font-family:"Cascadia Mono","SF Mono",Consolas,monospace;font-size:12.7px;line-height:1.7;border-radius:14px;padding:15px;
+  background:var(--card);box-shadow:inset 3px 3px 7px var(--sh-dark),inset -3px -3px 7px var(--sh-light)}
+.tasklist{list-style:none;margin:0;padding:0}
+.tasklist li{display:flex;gap:11px;align-items:flex-start;padding:11px 13px;border-radius:12px;margin-bottom:9px;
+  box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light)}
+.tasklist li input{width:18px;height:18px;margin-top:2px;flex:0 0 auto;accent-color:var(--fire);box-shadow:none}
+.tasklist li .t{font-size:13.7px}
+.tasklist li .meta{display:block;font-size:11.6px;color:var(--muted);margin-top:2px}
+.copied{color:var(--ok);font-size:12.5px;font-weight:600;opacity:0;transition:opacity .2s}
+.copied.show{opacity:1}
+.note{font-size:12.3px;color:var(--muted);border-radius:12px;padding:11px 13px;margin-top:11px;display:flex;gap:8px;align-items:flex-start;
+  box-shadow:inset 2px 2px 5px var(--sh-dark),inset -2px -2px 5px var(--sh-light)}
+.note svg{width:16px;height:16px;flex:0 0 auto;margin-top:1px;color:var(--fire)}
+/* toast */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);z-index:999;
+  background:#1f2937;color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:10px;box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:92vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast svg{width:19px;height:19px;color:var(--amber);flex:0 0 auto}
+@media(max-width:640px){
+  .grid{grid-template-columns:1fr}
+  input,select,textarea{font-size:16px}
+  .wrap{padding:14px 12px 48px}
+  .hero{padding:20px 18px}.hero h1{font-size:19px}
+  .card{padding:18px}
+  .apps{grid-template-columns:1fr 1fr;gap:12px}
+  .app{padding:15px}.app .ic{width:44px;height:44px}.app .ic svg{width:22px;height:22px}
+  .app h3{font-size:13.5px}.app p{font-size:11.5px}
+  .badge{top:11px;right:11px;padding:3px 7px;font-size:9px}
+}
+@media(max-width:380px){.apps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ==================== HOME VIEW ==================== -->
+<section id="view-home" class="view active">
+  <div class="topbar neu">
+    <div class="brand">
+      <div class="emblem" title="PQC Group – Phú Quý">
+        <svg viewBox="0 0 56 56" fill="none" aria-label="PQC Group logo">
+          <path d="M22 50 V20 A10 10 0 0 1 22 40" stroke="#20388A" stroke-width="7" stroke-linecap="round"/>
+          <path d="M20 7.5 L21.12 10.46 24.28 10.61 21.81 12.59 22.64 15.64 20 13.9 17.36 15.64 18.19 12.59 15.72 10.61 18.88 10.46 Z" fill="#E1122A"/>
+        </svg>
+      </div>
+      <div style="min-width:0">
+        <div class="name">PCCC <b>PHÚ QUÝ</b></div>
+        <div class="co">Công ty TNHH XD TM Phú Quý</div>
+        <div class="slo">Nâng tầm an toàn · Nâng tầm hiệu quả</div>
+      </div>
+    </div>
+    <a class="btn btn-fire call" href="tel:0907437303">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span class="ph"><small>Hotline</small><b>0907 437 303</b></span>
+    </a>
+  </div>
+
+  <div class="hero neu">
+    <div class="hero-txt">
+      <h1>Hệ thống <span>biểu mẫu &amp; tự động hóa</span> nội bộ</h1>
+      <p>Cổng tập trung các công cụ số hóa quy trình của Công ty TNHH XD TM Phú Quý — ghi nhận, phân loại và giao việc nhanh chóng cho các phòng ban và tổ đội.</p>
+      <div class="stats">
+        <div class="stat neu-in"><b data-count="19">19</b><small>Năm kinh nghiệm</small></div>
+        <div class="stat neu-in"><b data-count="300" data-suffix="+">300+</b><small>Dự án lớn</small></div>
+        <div class="stat neu-in"><b data-count="100" data-suffix="+">100+</b><small>Nhân viên</small></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="gf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#E11D2A"/><stop offset="1" stop-color="#F9A825"/></linearGradient></defs></svg>
+      <span class="glow"></span>
+      <span class="ring ring1"></span><span class="ring ring2"></span>
+      <span class="halo"></span>
+      <span class="ember e1"></span><span class="ember e2"></span><span class="ember e3"></span><span class="ember e4"></span><span class="ember e5"></span>
+      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+      <!-- Bình chữa cháy -->
+      <div class="chip c1" title="Bình chữa cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 3H14"/><path d="M14 3l2.5 2.5"/><path d="M9.5 3V2"/><rect x="7" y="6.5" width="8" height="15" rx="3"/><path d="M7.5 11h7"/></svg></div>
+      <!-- Chuông báo cháy -->
+      <div class="chip c2" title="Thiết bị báo cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div>
+      <!-- Nước / vòi chữa cháy -->
+      <div class="chip c3" title="Hệ thống nước chữa cháy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7c3 3.5 6 6.5 6 10.3a6 6 0 0 1-12 0c0-3.8 3-6.8 6-10.3z"/></svg></div>
+      <!-- Lá chắn + ngọn lửa -->
+      <div class="shield"><svg class="flame" viewBox="0 0 24 24"><path d="M12 2c.5 3-1.5 4-2.7 5.5C8 9 7 10.5 7 12.7 7 16.2 9.5 19 12 19s5-2.8 5-6.3c0-1.6-.6-2.9-1.4-4.1-.3.9-1 1.6-1.9 1.9.6-1.6.2-3.9-1.7-5.5-.1 1.6-.9 2.4-1.8 3.1C9.4 5.4 11 4 12 2z"/></svg></div>
+    </div>
+  </div>
+
+  <div class="sec-label">Công cụ &amp; Biểu mẫu</div>
+  <div class="apps">
+    <!-- ACTIVE tool -->
+    <button class="app live" onclick="goForm()">
+      <span class="badge on">Đang chạy</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/></svg></div>
+      <h3>Xử lý phản hồi tổ đội</h3>
+      <p>Ghi nhận phản hồi chưa hài lòng, phân loại ưu tiên &amp; giao việc xử lý.</p>
+    </button>
+    <!-- Placeholder tools -->
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></div>
+      <h3>Báo cáo công việc tuần</h3>
+      <p>Tổng hợp báo cáo tiến độ hàng tuần của các tổ đội thi công.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M9 6h6l1 4H8z"/><path d="M8 10c-1.5 1.5-2 3.5-2 6 0 3.3 2.7 6 6 6s6-2.7 6-6c0-2.5-.5-4.5-2-6"/></svg></div>
+      <h3>Quản lý thiết bị PCCC</h3>
+      <p>Theo dõi bình chữa cháy, thiết bị báo cháy, hạn kiểm định.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a6 6 0 0 1 12 0"/><circle cx="8" cy="6" r="4"/><path d="M18 8l2 2 4-4"/></svg></div>
+      <h3>Nhật ký thi công công trình</h3>
+      <p>Ghi nhận diễn biến thi công, nhân sự và an toàn lao động tại công trình.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg></div>
+      <h3>Đề xuất – cấp phát vật tư</h3>
+      <p>Yêu cầu và duyệt cấp phát vật tư, thiết bị cho từng dự án.</p>
+    </button>
+    <button class="app soon" onclick="soon()">
+      <span class="badge soon">Sắp ra mắt</span>
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4l-6 6a2 2 0 0 0 2.8 2.8l6-6a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2z"/></svg></div>
+      <h3>Kiểm tra – bảo trì định kỳ</h3>
+      <p>Lịch bảo trì, bảo dưỡng hệ thống PCCC theo chu kỳ cam kết.</p>
+    </button>
+  </div>
+
+  <div class="contact neu">
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div><div class="lb">Hotline</div><div class="vl"><a href="tel:0907437303">0907 437 303</a></div></div></div>
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="m22 6-10 7L2 6"/></svg></div><div><div class="lb">Email</div><div class="vl"><a href="mailto:phuquypccc68@gmail.com">phuquypccc68@gmail.com</a></div></div></div>
+    <div class="ci"><div class="cic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="lb">Địa chỉ</div><div class="vl">Số 68, đường số 3, khu TĐC ĐH Y Dược, P. Tân An, TP. Cần Thơ</div></div></div>
+  </div>
+  <div class="foot">CÔNG TY TNHH XÂY DỰNG THƯƠNG MẠI PHÚ QUÝ · pcccphuquy.com<br>Hệ thống nội bộ — dùng cho quản lý dự án &amp; thi công.</div>
+</section>
+
+<!-- ==================== FORM VIEW ==================== -->
+<section id="view-form" class="view">
+  <div class="form-top">
+    <button class="btn btn-sm" onclick="goHome()" aria-label="Về trang chủ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Trang chủ
+    </button>
+    <div class="ttl">Xử lý phản hồi chưa hài lòng về tổ đội<small>PCCC Phú Quý · Ghi nhận – phân loại ưu tiên – giao việc</small></div>
+  </div>
+
+  <div class="banner" id="banner" role="alert" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="bannerText"></span>
+  </div>
+
+  <div class="errsum" id="errsum" role="alert" aria-live="assertive">
+    <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Chưa thể tạo bản ghi — vui lòng bổ sung:</b>
+    <ul id="errList"></ul>
+  </div>
+
+  <form id="form" class="card neu" novalidate>
+    <div class="section-title"><span class="n">1</span> Thông tin tiếp nhận</div>
+    <div class="grid">
+      <div class="field" data-key="nguoiTiepNhan">
+        <label>Người tiếp nhận phản hồi<span class="req">*</span></label>
+        <input type="text" id="nguoiTiepNhan" placeholder="Họ tên người tiếp nhận">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="thoiGian">
+        <label>Ngày và giờ tiếp nhận <span class="hint">(mặc định: hiện tại)</span></label>
+        <input type="datetime-local" id="thoiGian">
+      </div>
+      <div class="field" data-key="tenToDoi">
+        <label>Tên tổ đội<span class="req">*</span></label>
+        <input type="text" id="tenToDoi" placeholder="VD: Tổ thi công số 3">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="maToDoi">
+        <label>Mã tổ đội hoặc số điện thoại</label>
+        <input type="text" id="maToDoi" placeholder="VD: TD-03 hoặc 09xx xxx xxx">
+      </div>
+      <div class="field" data-key="kenh">
+        <label>Kênh phản hồi<span class="req">*</span></label>
+        <select id="kenh">
+          <option value="">— Chọn kênh —</option>
+          <option>Zalo</option><option>Điện thoại</option><option>Email</option>
+          <option>Trực tiếp</option><option>Phần mềm quản lý</option><option>Khác</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field" data-key="tinhHuong">
+        <label>Tình huống xảy ra có liên quan</label>
+        <select id="tinhHuong">
+          <option value="">— Không chọn —</option>
+          <option>Báo cáo chậm</option>
+          <option>Không báo cáo công việc tuần</option>
+          <option>Thái độ tiêu cực khi báo cáo</option>
+          <option>Vi phạm quy định tuân thủ</option>
+          <option>Khác</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <div class="section-title"><span class="n">2</span> Nội dung phản hồi</div>
+    <div class="grid">
+      <div class="field" data-key="loai">
+        <label>Loại phản hồi<span class="req">*</span></label>
+        <select id="loai">
+          <option value="">— Chọn loại —</option>
+          <option>Vi phạm tuân thủ quy định</option>
+          <option>Chậm/không báo cáo tiến độ</option>
+          <option>Chất lượng công việc</option>
+          <option>Thái độ – tác phong</option>
+          <option>An toàn lao động / PCCC</option>
+          <option>Khác</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field" data-key="uuTien">
+        <label>Mức độ ưu tiên<span class="req">*</span></label>
+        <select id="uuTien">
+          <option value="">— Chọn mức độ —</option>
+          <option value="Thấp">Thấp</option>
+          <option value="Trung bình">Trung bình</option>
+          <option value="Cao">Cao</option>
+          <option value="Khẩn cấp">Khẩn cấp</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field full" data-key="noiDung">
+        <label>Nội dung phản hồi<span class="req">*</span></label>
+        <textarea id="noiDung" placeholder="Mô tả cụ thể sự việc, thời điểm, mức độ ảnh hưởng... (chỉ ghi thông tin thực tế, không suy diễn nguyên nhân)"></textarea>
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <div class="section-title"><span class="n">3</span> Phân công xử lý</div>
+    <div class="grid">
+      <div class="field" data-key="nguoiPhuTrach">
+        <label>Người phụ trách xử lý<span class="req">*</span></label>
+        <input type="text" id="nguoiPhuTrach" placeholder="Họ tên người được giao xử lý">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="hanPhanHoi">
+        <label>Hạn phản hồi lại của tổ đội<span class="req">*</span></label>
+        <input type="datetime-local" id="hanPhanHoi">
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field full" data-key="huongXuLy">
+        <label>Hướng xử lý ban đầu</label>
+        <textarea id="huongXuLy" placeholder="Đề xuất bước xử lý đầu tiên (nếu có)"></textarea>
+      </div>
+      <div class="field full" data-key="ghiChu">
+        <label>Ghi chú nội bộ <span class="hint">(không bắt buộc)</span></label>
+        <textarea id="ghiChu" placeholder="Ghi chú riêng cho bộ phận quản lý"></textarea>
+      </div>
+      <div class="field" data-key="emailNhan">
+        <label>Email nhận tin nội bộ <span class="hint">(tạm thay Zalo)</span></label>
+        <input type="email" id="emailNhan" value="ndanha23006@cusc.ctu.edu.vn">
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:22px">
+      <button type="submit" class="btn btn-fire">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Tạo bản ghi phản hồi
+      </button>
+      <button type="button" class="btn" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Làm mới biểu mẫu
+      </button>
+    </div>
+  </form>
+
+  <div id="results">
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Bản ghi phản hồi tổ đội</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="copied" id="copiedRecord">Đã sao chép ✓</span>
+          <button class="btn btn-sm" id="copyRecord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Sao chép bản ghi</button>
+        </div>
+      </div>
+      <div class="record" id="recordText"></div>
+    </div>
+
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Việc cần xử lý tiếp theo</h3>
+      </div>
+      <ul class="tasklist" id="taskList"></ul>
+    </div>
+
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Tin nhắn nội bộ gửi nhóm hộ &amp; tổ đội</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="copied" id="copiedMsg">Đã sao chép ✓</span>
+          <button class="btn btn-sm" id="copyMsg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Sao chép tin nhắn</button>
+        </div>
+      </div>
+      <div class="record" id="msgText"></div>
+      <div class="actions" style="margin-top:12px">
+        <a class="btn btn-fire" id="mailBtn" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="m22 6-10 7L2 6"/></svg> Gửi qua email</a>
+      </div>
+      <div class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Chưa có API Zalo nên tin nhắn gửi tạm qua email tới địa chỉ chỉ định để xem trước. Khi triển khai Google Apps Script sẽ tự động ghi Google Sheet và gửi email/Zalo.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div id="toast" role="status" aria-live="polite">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+  <span id="toastText">Đội ngũ đang xây dựng — tính năng sẽ sớm ra mắt!</span>
+</div>
+
+<script>
+(function(){
+  /* ---- Hiệu ứng đếm số khi tải trang ---- */
+  function countUp(el){
+    var target=parseFloat(el.getAttribute("data-count"))||0, suffix=el.getAttribute("data-suffix")||"";
+    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent=target+suffix; return; }
+    var dur=1500,start=null;
+    function step(ts){ if(!start)start=ts; var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(e*target)+suffix; if(p<1)requestAnimationFrame(step); else el.textContent=target+suffix; }
+    requestAnimationFrame(step);
+  }
+  document.querySelectorAll('.stat b[data-count]').forEach(countUp);
+})();
+(function(){
+  var $ = function(id){return document.getElementById(id)};
+
+  /* ---- navigation ---- */
+  window.goForm=function(){ $("view-home").classList.remove("active"); $("view-form").classList.add("active"); window.scrollTo({top:0,behavior:"instant"in window?"instant":"auto"}); };
+  window.goHome=function(){ $("view-form").classList.remove("active"); $("view-home").classList.add("active"); window.scrollTo({top:0}); };
+  var tmr;
+  window.soon=function(){ var t=$("toast"); t.classList.add("show"); clearTimeout(tmr); tmr=setTimeout(function(){t.classList.remove("show")},2600); };
+
+  /* ---- form logic ---- */
+  var REQUIRED = [
+    ["nguoiTiepNhan","Người tiếp nhận"],["tenToDoi","Tên tổ đội"],["kenh","Kênh phản hồi"],
+    ["loai","Loại phản hồi"],["noiDung","Nội dung phản hồi"],["uuTien","Mức độ ưu tiên"],
+    ["nguoiPhuTrach","Người phụ trách xử lý"],["hanPhanHoi","Hạn phản hồi lại"]
+  ];
+  function nowLocal(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+  $("thoiGian").value = nowLocal();
+  function fmtDT(v){ if(!v) return "(chưa nhập)"; var d=new Date(v); if(isNaN(d)) return v; var p=function(n){return (n<10?"0":"")+n};
+    return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes()); }
+  function val(id){var e=$(id); return e? (e.value||"").trim() : "";}
+  function orDash(s){return s? s : "(không nhập)";}
+  function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+  $("uuTien").addEventListener("change", updateBanner);
+  function updateBanner(){
+    var p=$("uuTien").value, b=$("banner"), t=$("bannerText"); b.className="banner";
+    if(p==="Khẩn cấp"){b.classList.add("urgent");t.textContent="MỨC KHẨN CẤP — cần xử lý ngay, ưu tiên trong vòng 24 giờ và báo quản lý cấp trên.";}
+    else if(p==="Cao"){b.classList.add("high");t.textContent="MỨC ƯU TIÊN CAO — cần xử lý sớm, nên hoàn tất trong vòng 48 giờ.";}
+  }
+  function priorityMeta(p){
+    if(p==="Khẩn cấp") return {sla:"trong vòng 24 giờ"};
+    if(p==="Cao") return {sla:"trong vòng 48 giờ"};
+    if(p==="Trung bình") return {sla:"trong tuần làm việc"};
+    return {sla:"theo lịch định kỳ"};
+  }
+  var data={};
+
+  $("form").addEventListener("submit", function(e){
+    e.preventDefault();
+    document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+    var missing=[];
+    REQUIRED.forEach(function(r){ if(!val(r[0])){ missing.push(r); $(r[0]).closest(".field").classList.add("invalid"); } });
+    var es=$("errsum");
+    if(missing.length){
+      var ul=$("errList"); ul.innerHTML="";
+      missing.forEach(function(r){ var li=document.createElement("li"); var a=document.createElement("a");
+        a.textContent=r[1]; a.onclick=function(){$(r[0]).focus();}; li.appendChild(a); ul.appendChild(li); });
+      es.classList.add("show"); $("results").classList.remove("show");
+      es.scrollIntoView({behavior:"smooth",block:"center"}); $(missing[0][0]).focus();
+      return;
+    }
+    es.classList.remove("show");
+    data = { nguoiTiepNhan:val("nguoiTiepNhan"), thoiGian:val("thoiGian"), tenToDoi:val("tenToDoi"),
+      maToDoi:val("maToDoi"), kenh:val("kenh"), tinhHuong:val("tinhHuong"), loai:val("loai"),
+      noiDung:val("noiDung"), uuTien:val("uuTien"), nguoiPhuTrach:val("nguoiPhuTrach"),
+      hanPhanHoi:val("hanPhanHoi"), huongXuLy:val("huongXuLy"), ghiChu:val("ghiChu"), emailNhan:val("emailNhan") };
+    var pm = priorityMeta(data.uuTien);
+    var som = (data.uuTien==="Cao"||data.uuTien==="Khẩn cấp");
+
+    var rec =
+"════ BẢN GHI PHẢN HỒI TỔ ĐỘI ════\n"+
+"Người tiếp nhận   : "+data.nguoiTiepNhan+"\n"+
+"Thời gian tiếp nhận: "+fmtDT(data.thoiGian)+"\n"+
+"Tổ đội            : "+data.tenToDoi+(data.maToDoi?" ("+data.maToDoi+")":"")+"\n"+
+"Kênh phản hồi     : "+data.kenh+"\n"+
+"Tình huống liên quan: "+orDash(data.tinhHuong)+"\n"+
+"Loại phản hồi     : "+data.loai+"\n"+
+"Mức độ ưu tiên    : "+data.uuTien+(som?"  ⚠ CẦN XỬ LÝ SỚM":"")+"\n"+
+"Người phụ trách   : "+data.nguoiPhuTrach+"\n"+
+"Hạn tổ đội phản hồi: "+fmtDT(data.hanPhanHoi)+"\n"+
+"──────────────────────────────\n"+
+"NỘI DUNG PHẢN HỒI:\n"+data.noiDung+"\n"+
+"──────────────────────────────\n"+
+"Hướng xử lý ban đầu: "+orDash(data.huongXuLy)+"\n"+
+"Ghi chú nội bộ    : "+orDash(data.ghiChu)+"\n"+
+"════════════════════════════════";
+    $("recordText").textContent = rec;
+
+    var tasks = [
+      {t:"Xác nhận đã tiếp nhận phản hồi và giao cho "+data.nguoiPhuTrach, m:"Ngay sau khi tạo bản ghi"},
+      {t:"Liên hệ "+data.tenToDoi+" qua kênh "+data.kenh+" để trao đổi về nội dung đã ghi nhận", m:"Xử lý "+pm.sla},
+      {t:"Ghi nhận cam kết & hạn phản hồi lại của tổ đội", m:"Hạn: "+fmtDT(data.hanPhanHoi)},
+      {t:"Cập nhật kết quả xử lý vào hồ sơ theo dõi tuân thủ", m:"Sau khi tổ đội phản hồi"}
+    ];
+    if(som) tasks.push({t:"Báo cáo quản lý dự án/thi công cấp trên về trường hợp ưu tiên "+data.uuTien.toLowerCase(), m:"Trong ngày"});
+    var tl=$("taskList"); tl.innerHTML="";
+    tasks.forEach(function(x,i){ var li=document.createElement("li");
+      li.innerHTML='<input type="checkbox" id="tk'+i+'"><div><label class="t" for="tk'+i+'">'+esc(x.t)+'</label><span class="meta">'+esc(x.m)+'</span></div>';
+      tl.appendChild(li); });
+
+    var flag = data.uuTien==="Khẩn cấp"?"🔴 KHẨN CẤP":(data.uuTien==="Cao"?"🟠 ƯU TIÊN CAO":(data.uuTien==="Trung bình"?"🟡 TRUNG BÌNH":"🟢 THẤP"));
+    var msg =
+"[PHẢN HỒI TỔ ĐỘI — CẦN XỬ LÝ] "+flag+"\n"+
+"• Tổ đội: "+data.tenToDoi+(data.maToDoi?" ("+data.maToDoi+")":"")+"\n"+
+"• Loại phản hồi: "+data.loai+"\n"+
+(data.tinhHuong?"• Tình huống: "+data.tinhHuong+"\n":"")+
+"• Nội dung: "+data.noiDung+"\n"+
+"• Người phụ trách xử lý: "+data.nguoiPhuTrach+"\n"+
+"• Hạn tổ đội phản hồi lại: "+fmtDT(data.hanPhanHoi)+"\n"+
+(data.huongXuLy?"• Hướng xử lý ban đầu: "+data.huongXuLy+"\n":"")+
+"—\nTiếp nhận bởi "+data.nguoiTiepNhan+" · "+fmtDT(data.thoiGian);
+    $("msgText").textContent = msg;
+
+    var subj="[Phản hồi tổ đội] "+data.tenToDoi+" - "+data.loai+" ("+data.uuTien+")";
+    $("mailBtn").href="mailto:"+encodeURIComponent(data.emailNhan)+"?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(msg);
+
+    updateBanner();
+    $("results").classList.add("show");
+    $("results").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+
+  function copy(text, tagId){
+    var done=function(){var el=$(tagId);el.classList.add("show");setTimeout(function(){el.classList.remove("show")},1600);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done();});}
+    else{fallback(text);done();}
+  }
+  function fallback(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);}
+  $("copyRecord").onclick=function(){copy($("recordText").textContent,"copiedRecord");};
+  $("copyMsg").onclick=function(){copy($("msgText").textContent,"copiedMsg");};
+
+  $("resetBtn").onclick=function(){
+    $("form").reset();
+    document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+    $("errsum").classList.remove("show"); $("results").classList.remove("show"); $("banner").className="banner";
+    $("thoiGian").value=nowLocal(); $("emailNhan").value="ndanha23006@cusc.ctu.edu.vn";
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
+})();
+</script>
+</body>
+</html>

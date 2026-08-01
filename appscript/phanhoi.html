@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<base target="_top">
+<?!= include('styles') ?>
+</head>
+<body>
+<div class="wrap">
+  <div class="form-top">
+    <a class="btn btn-sm" href="<?= baseUrl ?>" aria-label="Về trang chủ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+      Trang chủ
+    </a>
+    <div class="ttl">Xử lý phản hồi chưa hài lòng về tổ đội<small>PCCC Phú Quý · Ghi nhận – phân loại ưu tiên – giao việc</small></div>
+  </div>
+
+  <div class="banner" id="banner" role="alert" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="bannerText"></span>
+  </div>
+
+  <div class="banner" id="savedBanner" role="status" aria-live="polite">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+    <span id="savedText"></span>
+  </div>
+
+  <div class="errsum" id="errsum" role="alert" aria-live="assertive">
+    <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Chưa thể tạo bản ghi — vui lòng bổ sung:</b>
+    <ul id="errList"></ul>
+  </div>
+
+  <form id="form" class="card neu" novalidate>
+    <div class="section-title"><span class="n">1</span> Thông tin tiếp nhận</div>
+    <div class="grid">
+      <div class="field" data-key="nguoiTiepNhan">
+        <label>Người tiếp nhận phản hồi<span class="req">*</span></label>
+        <input type="text" id="nguoiTiepNhan" placeholder="Họ tên người tiếp nhận">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="thoiGian">
+        <label>Ngày và giờ tiếp nhận <span class="hint">(mặc định: hiện tại)</span></label>
+        <input type="datetime-local" id="thoiGian">
+      </div>
+      <div class="field" data-key="tenToDoi">
+        <label>Tên tổ đội<span class="req">*</span></label>
+        <input type="text" id="tenToDoi" placeholder="VD: Tổ thi công số 3">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="maToDoi">
+        <label>Mã tổ đội hoặc số điện thoại</label>
+        <input type="text" id="maToDoi" placeholder="VD: TD-03 hoặc 09xx xxx xxx">
+      </div>
+      <div class="field" data-key="kenh">
+        <label>Kênh phản hồi<span class="req">*</span></label>
+        <select id="kenh">
+          <option value="">— Chọn kênh —</option>
+          <option>Zalo</option><option>Điện thoại</option><option>Email</option>
+          <option>Trực tiếp</option><option>Phần mềm quản lý</option><option>Khác</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field" data-key="tinhHuong">
+        <label>Tình huống xảy ra có liên quan</label>
+        <select id="tinhHuong">
+          <option value="">— Không chọn —</option>
+          <option>Báo cáo chậm</option>
+          <option>Không báo cáo công việc tuần</option>
+          <option>Thái độ tiêu cực khi báo cáo</option>
+          <option>Vi phạm quy định tuân thủ</option>
+          <option>Khác</option>
+        </select>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <div class="section-title"><span class="n">2</span> Nội dung phản hồi</div>
+    <div class="grid">
+      <div class="field" data-key="loai">
+        <label>Loại phản hồi<span class="req">*</span></label>
+        <select id="loai">
+          <option value="">— Chọn loại —</option>
+          <option>Vi phạm tuân thủ quy định</option>
+          <option>Chậm/không báo cáo tiến độ</option>
+          <option>Chất lượng công việc</option>
+          <option>Thái độ – tác phong</option>
+          <option>An toàn lao động / PCCC</option>
+          <option>Khác</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field" data-key="uuTien">
+        <label>Mức độ ưu tiên<span class="req">*</span></label>
+        <select id="uuTien">
+          <option value="">— Chọn mức độ —</option>
+          <option value="Thấp">Thấp</option>
+          <option value="Trung bình">Trung bình</option>
+          <option value="Cao">Cao</option>
+          <option value="Khẩn cấp">Khẩn cấp</option>
+        </select>
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field full" data-key="noiDung">
+        <label>Nội dung phản hồi<span class="req">*</span></label>
+        <textarea id="noiDung" placeholder="Mô tả cụ thể sự việc, thời điểm, mức độ ảnh hưởng... (chỉ ghi thông tin thực tế, không suy diễn nguyên nhân)"></textarea>
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <div class="section-title"><span class="n">3</span> Phân công xử lý</div>
+    <div class="grid">
+      <div class="field" data-key="nguoiPhuTrach">
+        <label>Người phụ trách xử lý<span class="req">*</span></label>
+        <input type="text" id="nguoiPhuTrach" placeholder="Họ tên người được giao xử lý">
+        <span class="err">Bắt buộc nhập.</span>
+      </div>
+      <div class="field" data-key="hanPhanHoi">
+        <label>Hạn phản hồi lại của tổ đội<span class="req">*</span></label>
+        <input type="datetime-local" id="hanPhanHoi">
+        <span class="err">Bắt buộc chọn.</span>
+      </div>
+      <div class="field full" data-key="huongXuLy">
+        <label>Hướng xử lý ban đầu</label>
+        <textarea id="huongXuLy" placeholder="Đề xuất bước xử lý đầu tiên (nếu có)"></textarea>
+      </div>
+      <div class="field full" data-key="ghiChu">
+        <label>Ghi chú nội bộ <span class="hint">(không bắt buộc)</span></label>
+        <textarea id="ghiChu" placeholder="Ghi chú riêng cho bộ phận quản lý"></textarea>
+      </div>
+      <div class="field" data-key="emailNhan">
+        <label>Email nhận tin nội bộ <span class="hint">(tạm thay Zalo)</span></label>
+        <input type="email" id="emailNhan" value="ndanha23006@cusc.ctu.edu.vn">
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top:22px">
+      <button type="submit" class="btn btn-fire" id="submitBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <span id="submitLabel">Tạo phiếu &amp; lưu file Word</span>
+      </button>
+      <button type="button" class="btn" id="resetBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Làm mới biểu mẫu
+      </button>
+    </div>
+  </form>
+
+  <div id="results">
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Bản ghi phản hồi tổ đội</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="copied" id="copiedRecord">Đã sao chép ✓</span>
+          <button class="btn btn-sm" id="copyRecord"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Sao chép bản ghi</button>
+        </div>
+      </div>
+      <div class="record" id="recordText"></div>
+    </div>
+
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Việc cần xử lý tiếp theo</h3>
+      </div>
+      <ul class="tasklist" id="taskList"></ul>
+    </div>
+
+    <div class="card neu">
+      <div class="out-head">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Tin nhắn nội bộ gửi nhóm hộ &amp; tổ đội</h3>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="copied" id="copiedMsg">Đã sao chép ✓</span>
+          <button class="btn btn-sm" id="copyMsg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Sao chép tin nhắn</button>
+        </div>
+      </div>
+      <div class="record" id="msgText"></div>
+      <div class="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Phiếu đã được lưu thành file Word trong thư mục Drive và (nếu bật) gửi kèm email nội bộ. Khi có API Zalo, chỉ cần bổ sung bước đẩy tin sang nhóm Zalo trong Code.gs.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var BASE = "<?= baseUrl ?>";
+  (function(){
+    var $ = function(id){return document.getElementById(id)};
+    var REQUIRED = [
+      ["nguoiTiepNhan","Người tiếp nhận"],["tenToDoi","Tên tổ đội"],["kenh","Kênh phản hồi"],
+      ["loai","Loại phản hồi"],["noiDung","Nội dung phản hồi"],["uuTien","Mức độ ưu tiên"],
+      ["nguoiPhuTrach","Người phụ trách xử lý"],["hanPhanHoi","Hạn phản hồi lại"]
+    ];
+    function nowLocal(){var d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16);}
+    $("thoiGian").value = nowLocal();
+    function fmtDT(v){ if(!v) return "(chưa nhập)"; var d=new Date(v); if(isNaN(d)) return v; var p=function(n){return (n<10?"0":"")+n};
+      return p(d.getDate())+"/"+p(d.getMonth()+1)+"/"+d.getFullYear()+" "+p(d.getHours())+":"+p(d.getMinutes()); }
+    function val(id){var e=$(id); return e? (e.value||"").trim() : "";}
+    function orDash(s){return s? s : "(không nhập)";}
+    function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML;}
+
+    $("uuTien").addEventListener("change", updateBanner);
+    function updateBanner(){
+      var p=$("uuTien").value, b=$("banner"), t=$("bannerText"); b.className="banner";
+      if(p==="Khẩn cấp"){b.classList.add("urgent");t.textContent="MỨC KHẨN CẤP — cần xử lý ngay, ưu tiên trong vòng 24 giờ và báo quản lý cấp trên.";}
+      else if(p==="Cao"){b.classList.add("high");t.textContent="MỨC ƯU TIÊN CAO — cần xử lý sớm, nên hoàn tất trong vòng 48 giờ.";}
+    }
+    function priorityMeta(p){
+      if(p==="Khẩn cấp") return {sla:"trong vòng 24 giờ"};
+      if(p==="Cao") return {sla:"trong vòng 48 giờ"};
+      if(p==="Trung bình") return {sla:"trong tuần làm việc"};
+      return {sla:"theo lịch định kỳ"};
+    }
+
+    function buildOutputs(d){
+      var pm = priorityMeta(d.uuTien);
+      var som = (d.uuTien==="Cao"||d.uuTien==="Khẩn cấp");
+      var rec =
+"════ BẢN GHI PHẢN HỒI TỔ ĐỘI ════\n"+
+"Người tiếp nhận   : "+d.nguoiTiepNhan+"\n"+
+"Thời gian tiếp nhận: "+fmtDT(d.thoiGian)+"\n"+
+"Tổ đội            : "+d.tenToDoi+(d.maToDoi?" ("+d.maToDoi+")":"")+"\n"+
+"Kênh phản hồi     : "+d.kenh+"\n"+
+"Tình huống liên quan: "+orDash(d.tinhHuong)+"\n"+
+"Loại phản hồi     : "+d.loai+"\n"+
+"Mức độ ưu tiên    : "+d.uuTien+(som?"  ⚠ CẦN XỬ LÝ SỚM":"")+"\n"+
+"Người phụ trách   : "+d.nguoiPhuTrach+"\n"+
+"Hạn tổ đội phản hồi: "+fmtDT(d.hanPhanHoi)+"\n"+
+"──────────────────────────────\n"+
+"NỘI DUNG PHẢN HỒI:\n"+d.noiDung+"\n"+
+"──────────────────────────────\n"+
+"Hướng xử lý ban đầu: "+orDash(d.huongXuLy)+"\n"+
+"Ghi chú nội bộ    : "+orDash(d.ghiChu)+"\n"+
+"════════════════════════════════";
+      $("recordText").textContent = rec;
+
+      var tasks = [
+        {t:"Xác nhận đã tiếp nhận phản hồi và giao cho "+d.nguoiPhuTrach, m:"Ngay sau khi tạo bản ghi"},
+        {t:"Liên hệ "+d.tenToDoi+" qua kênh "+d.kenh+" để trao đổi về nội dung đã ghi nhận", m:"Xử lý "+pm.sla},
+        {t:"Ghi nhận cam kết & hạn phản hồi lại của tổ đội", m:"Hạn: "+fmtDT(d.hanPhanHoi)},
+        {t:"Cập nhật kết quả xử lý vào hồ sơ theo dõi tuân thủ", m:"Sau khi tổ đội phản hồi"}
+      ];
+      if(som) tasks.push({t:"Báo cáo quản lý dự án/thi công cấp trên về trường hợp ưu tiên "+d.uuTien.toLowerCase(), m:"Trong ngày"});
+      var tl=$("taskList"); tl.innerHTML="";
+      tasks.forEach(function(x,i){ var li=document.createElement("li");
+        li.innerHTML='<input type="checkbox" id="tk'+i+'"><div><label class="t" for="tk'+i+'">'+esc(x.t)+'</label><span class="meta">'+esc(x.m)+'</span></div>';
+        tl.appendChild(li); });
+
+      var flag = d.uuTien==="Khẩn cấp"?"🔴 KHẨN CẤP":(d.uuTien==="Cao"?"🟠 ƯU TIÊN CAO":(d.uuTien==="Trung bình"?"🟡 TRUNG BÌNH":"🟢 THẤP"));
+      var msg =
+"[PHẢN HỒI TỔ ĐỘI — CẦN XỬ LÝ] "+flag+"\n"+
+"• Tổ đội: "+d.tenToDoi+(d.maToDoi?" ("+d.maToDoi+")":"")+"\n"+
+"• Loại phản hồi: "+d.loai+"\n"+
+(d.tinhHuong?"• Tình huống: "+d.tinhHuong+"\n":"")+
+"• Nội dung: "+d.noiDung+"\n"+
+"• Người phụ trách xử lý: "+d.nguoiPhuTrach+"\n"+
+"• Hạn tổ đội phản hồi lại: "+fmtDT(d.hanPhanHoi)+"\n"+
+(d.huongXuLy?"• Hướng xử lý ban đầu: "+d.huongXuLy+"\n":"")+
+"—\nTiếp nhận bởi "+d.nguoiTiepNhan+" · "+fmtDT(d.thoiGian);
+      $("msgText").textContent = msg;
+    }
+
+    function setLoading(on){
+      var b=$("submitBtn");
+      if(on){ b.setAttribute("disabled","disabled"); b.querySelector("svg").outerHTML='<span class="spin" id="spin"></span>'; $("submitLabel").textContent="Đang lưu phiếu..."; }
+      else { b.removeAttribute("disabled"); var sp=$("spin"); if(sp) sp.outerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'; $("submitLabel").textContent="Tạo phiếu & lưu file Word"; }
+    }
+
+    $("form").addEventListener("submit", function(e){
+      e.preventDefault();
+      document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+      $("savedBanner").className="banner";
+      var missing=[];
+      REQUIRED.forEach(function(r){ if(!val(r[0])){ missing.push(r); $(r[0]).closest(".field").classList.add("invalid"); } });
+      var es=$("errsum");
+      if(missing.length){
+        var ul=$("errList"); ul.innerHTML="";
+        missing.forEach(function(r){ var li=document.createElement("li"); var a=document.createElement("a");
+          a.textContent=r[1]; a.onclick=function(){$(r[0]).focus();}; li.appendChild(a); ul.appendChild(li); });
+        es.classList.add("show"); $("results").classList.remove("show");
+        es.scrollIntoView({behavior:"smooth",block:"center"}); $(missing[0][0]).focus();
+        return;
+      }
+      es.classList.remove("show");
+
+      var d = { nguoiTiepNhan:val("nguoiTiepNhan"), thoiGian:val("thoiGian"), tenToDoi:val("tenToDoi"),
+        maToDoi:val("maToDoi"), kenh:val("kenh"), tinhHuong:val("tinhHuong"), loai:val("loai"),
+        noiDung:val("noiDung"), uuTien:val("uuTien"), nguoiPhuTrach:val("nguoiPhuTrach"),
+        hanPhanHoi:val("hanPhanHoi"), huongXuLy:val("huongXuLy"), ghiChu:val("ghiChu"), emailNhan:val("emailNhan") };
+
+      buildOutputs(d);
+      updateBanner();
+      setLoading(true);
+
+      google.script.run
+        .withSuccessHandler(function(res){
+          setLoading(false);
+          if(res && res.ok){
+            $("results").classList.add("show");
+            var sb=$("savedBanner"); sb.className="banner ok";
+            $("savedText").innerHTML = 'Đã tạo phiếu Word <b>'+esc(res.ma)+'</b> và lưu vào Drive. <a href="'+res.fileUrl+'" target="_blank" rel="noopener">Mở file Word »</a>';
+            sb.scrollIntoView({behavior:"smooth",block:"center"});
+          } else if(res && res.thieu){
+            var ul=$("errList"); ul.innerHTML="";
+            res.thieu.forEach(function(n){ var li=document.createElement("li"); li.textContent=n; ul.appendChild(li); });
+            $("errsum").classList.add("show");
+          }
+        })
+        .withFailureHandler(function(err){
+          setLoading(false);
+          var sb=$("savedBanner"); sb.className="banner urgent";
+          $("savedText").textContent = "Lỗi khi lưu phiếu: " + (err && err.message ? err.message : err);
+          sb.scrollIntoView({behavior:"smooth",block:"center"});
+        })
+        .luuPhanHoi(d);
+    });
+
+    function copy(text, tagId){
+      var done=function(){var el=$(tagId);el.classList.add("show");setTimeout(function(){el.classList.remove("show")},1600);};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done,function(){fallback(text);done();});}
+      else{fallback(text);done();}
+    }
+    function fallback(text){var ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);}
+    $("copyRecord").onclick=function(){copy($("recordText").textContent,"copiedRecord");};
+    $("copyMsg").onclick=function(){copy($("msgText").textContent,"copiedMsg");};
+
+    $("resetBtn").onclick=function(){
+      $("form").reset();
+      document.querySelectorAll(".field.invalid").forEach(function(f){f.classList.remove("invalid")});
+      $("errsum").classList.remove("show"); $("results").classList.remove("show");
+      $("banner").className="banner"; $("savedBanner").className="banner";
+      $("thoiGian").value=nowLocal(); $("emailNhan").value="ndanha23006@cusc.ctu.edu.vn";
+      window.scrollTo({top:0,behavior:"smooth"});
+    };
+  })();
+</script>
+</body>
+</html>
